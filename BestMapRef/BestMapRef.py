@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 """
-Script for parsing the best hit reference from a mapping stage of multiple references.
+Script for parsing the best hit references from a mapping stage of several genes with several variants.
 """
 
 import csv
 import sys
+import itertools
 
 from Bio import SeqIO
 
@@ -13,39 +14,44 @@ class MissingFastaError(object):
     pass
 
 
-def parse_best(mapping_results):
-    """Parse a vcf for the best reference according to total read count."""
+def parse_mapping(mapping_results):
+    """Parse a vcf for the best references according to total read count."""
     with open(mapping_results) as inp:
-        csv_info = csv.DictReader(inp, delimiter='\t')
+        csv_info = csv.DictReader(inp, delimiter=',')
         rows = [row for row in csv_info]
 
-    best_mapped = max(rows, key=lambda x: int(x['Total read count']))
-    return best_mapped
+    genegroups = [list(g) for _, g in itertools.groupby(rows, lambda x: x['Name'].split('_')[0])]
+    best_mapped_genes = [max(group, key=lambda x: int(x['Total read count'])) for group in genegroups]
+    return best_mapped_genes
 
 
-def fetch_best(best_mapped, fasta_path):
+def fetch_sequence_records(best_mapped_genes, fasta_path):
     """Fetch the SeqIO record for the best reference from references fasta file."""
-    best_header = best_mapped['Name'].replace(' mapping', '')
+    headers = [gene['Name'].replace(' mapping', '') for gene in best_mapped_genes]
 
+    records = []
     for record in SeqIO.parse(fasta_path, 'fasta'):
-        if record.id == best_header:
-            return record
-    else:
-        raise MissingFastaError('The sequence header was not found in the given fasta file.')
+        if record.id in headers:
+            records.append(record)
+
+    if len(records) != len(best_mapped_genes):
+        raise MissingFastaError('One or more sequence headers were not found in the given fasta file.')
+    return records
 
 
-def write_output(best_record, output):
+def write_output(gene_sequence_records, output):
     """Write the SeqIO record for the best reference to file."""
     with open(output, 'w') as out:
-        SeqIO.write(best_record, out, 'fasta')
+        for record in gene_sequence_records:
+            SeqIO.write(record, out, 'fasta')
 
 
 def main():
-    mapping_results, fasta_path, fasta_output = sys.argv[1]
+    mapping_results, fasta_path, fasta_output = sys.argv[1:]
 
-    best_mapped = parse_best(mapping_results)
-    best_record = fetch_best(best_mapped, fasta_path)
-    write_output(best_record, fasta_output)
+    best_mapped_genes = parse_mapping(mapping_results)
+    gene_sequence_records = fetch_sequence_records(best_mapped_genes, fasta_path)
+    write_output(gene_sequence_records, fasta_output)
 
 
 if __name__ == '__main__':
