@@ -13,13 +13,15 @@ import click
 from datetime import date
 import csv
 from collections import defaultdict
+import emailSender
 
 # Get arguments from the commandline
 @click.command()
 @click.option('-a', '--age', type=int, required=True, help='Age of dirs, in days, to be deleted')
 @click.option('-d', '--directory', required=True, help='Path to directories')
 @click.option('-s', '--sheetname', help='Name of file with ownership info of samples. default: "SampleSheet.csv')
-def main (age, directory, sheetname='SampleSheet'):
+@click.option('-i', '--investigatorlist', required=True, help='Path to json file with investigator e-mails')
+def main (age, directory, investigatorlist, sheetname='SampleSheet_exempel.csv'):
     #Get a list of all seq runs in directory
     sheetname = 'SampleSheet_exempel.csv'  #For testing purposes only, remove this
     runs = []
@@ -32,11 +34,11 @@ def main (age, directory, sheetname='SampleSheet'):
 
     #Go over each sequencing run one by one
     for run in runs:
-        #bug(run)
+        bug(run)
         # Get a list of samples to be removed
         to_remove = getOld(age, run)  #Paths to all samples
         to_remove_samples = list(map(lambda str: str.split('/')[-1], to_remove))  #List of the samples themselves
-
+        #bug(to_remove_samples)
         #E-mail the people who have old samples
         # First make sure the SampleSheet.csv file exists
         if not os.path.exists(os.path.join(run, sheetname)):
@@ -45,7 +47,9 @@ def main (age, directory, sheetname='SampleSheet'):
         to_email = dirOwners(os.path.join(run, sheetname), to_remove_samples)
         bug(to_email)
 
+        # Send an email to the owners
 
+        #autoMail(run, to_remove_samples, address)
 
 def getOld (age, run):  #Check which folders are older than age
     today = date.today()
@@ -75,8 +79,6 @@ def dirOwners (run, samples): #Who owns what sample
         owner_dict[key].append(value)
 
     return owner_dict
-
-
 
 def bug (str): #Mark more clearly what is a debug message
     print("** Debug:", end=' ')
