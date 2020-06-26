@@ -13,7 +13,7 @@ import click
 from datetime import date
 import csv
 from collections import defaultdict
-import emailSender
+import json
 
 # Get arguments from the commandline
 @click.command()
@@ -47,9 +47,12 @@ def main (age, directory, investigatorlist, sheetname='SampleSheet_exempel.csv')
         to_email = dirOwners(os.path.join(run, sheetname), to_remove_samples)
         #bug(to_email)
 
-        # Send an email to the owners
-
-        #autoMail(run, to_remove_samples, address)
+    # Send an email to the owners
+    # First get a list of what e-mail belongs to what person
+    with open(investigatorlist) as f:
+        data = json.load(f)
+    #bug(data['investigators']['CO']['email'])
+    #autoMail(run, to_remove_samples, address)
 
 def getOld (age, run):  #Check which folders are older than age, return name and age
     today = date.today()
@@ -63,7 +66,7 @@ def getOld (age, run):  #Check which folders are older than age, return name and
             if age_today > age:
                 old_dirs[name] = {'path': full_name, 'age': age_today}
                 #old_dirs.append(full_name) #Used for using lists
-    bug(old_dirs)
+    #bug(old_dirs)
     return old_dirs
 
 def dirOwners (run, samples): #Who owns what sample
