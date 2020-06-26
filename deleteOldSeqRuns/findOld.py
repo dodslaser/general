@@ -42,7 +42,9 @@ def main (age, directory, investigatorlist, sheetname):
             #runs.append(full_path)
 
     #Go over each sequencing run one by one
+    #Check how old they are, what samples are in it, and who owns the sample
     for run in runs:
+        bug("----")
         #Full path of the run
         run_path = os.path.join(directory, run)
 
@@ -51,7 +53,17 @@ def main (age, directory, investigatorlist, sheetname):
 
         #What samples are in each run
         run_dict[run]['samples'] = runSamples(run_path)
-        bug(run_dict)
+        #bug(run_dict)
+
+        #Who owns what sample
+        samples = run_dict[run]['samples']
+        sheetpath = os.path.join(run_path, sheetname)
+        owner_dict = sampleOwners(sheetpath, samples)
+        #bug(owner_dict)
+
+        #Build a dict containing all info combined
+        for pi in owner_dict.keys():
+            bug(pi)
 
         #to_remove = getOld(age, run_path)  #Paths to all samples
         #to_remove_samples = list(map(lambda str: str.split('/')[-1], to_remove))  #List of the samples themselves
@@ -62,7 +74,7 @@ def main (age, directory, investigatorlist, sheetname):
         #     print("** ERROR: No " + sheetname + " @ " + run)
         # else:
         #     # See who owes each sample in the run
-        #     to_email = dirOwners(os.path.join(run_path, sheetname), to_remove_samples)
+        #     to_email = sampleOwners(os.path.join(run_path, sheetname), to_remove_samples)
         #     #bug(to_email)
 
     # Send an email to the owners
@@ -89,10 +101,25 @@ def runSamples (run):
         if os.path.isdir(os.path.join(run, name)):
             #bug(name)
             samples.append(name)
-
     return samples
 
+def sampleOwners (sheetpath, samples):
+    with open(sheetpath, mode='r') as csv_file:
+        csv_reader = csv.reader(csv_file)
+        pairs = []
+        # Read in each line and save info about sample and owner
+        for row in csv_reader:
+            if row and row[0] in samples:  # skip empty rows and rows without sample info
+                extract = [row[10].split('_')[0], row[0]]
+                #bug(extract)
+                pairs.append(extract)
 
+      # Load values into a dictionary
+        owner_dict = defaultdict(list)
+        for key, value in pairs:
+            owner_dict[key].append(value)
+        #bug(owner_dict)
+        return owner_dict
 
 # def getOld (age, run):  #Check which folders are older than age, return name and age
 #     today = datetime.date.today()
@@ -112,24 +139,6 @@ def runSamples (run):
 #                 #old_dirs.append(full_name) #Used for using lists
 #     #bug(old_dirs)
 #     return old_dirs
-
-def dirOwners (run, samples):  #Who owns what sample
-    #bug(samples)
-    with open(run, mode='r') as csv_file:
-        csv_reader = csv.reader(csv_file)
-        pairs = []
-        # Read in each line and save info about sample and owner
-        for row in csv_reader:
-            if row and row[0] in samples:  #skip empty rows and rows without sample info
-                extract = [row[10].split('_')[0], row[0]]
-                pairs.append(extract)
-
-   # Load values into a dictionary
-    owner_dict = defaultdict(list)
-    for key, value in pairs:
-        owner_dict[key].append(value)
-
-    return owner_dict
 
 def bug (str): #Mark more clearly what is a debug message
     print("** Debug:", end=' ')
