@@ -34,7 +34,7 @@ def main (age, directory, investigatorlist, sheetname='SampleSheet_exempel.csv')
 
     #Go over each sequencing run one by one
     for run in runs:
-        bug(run)
+        #bug(run)
         # Get a list of samples to be removed
         to_remove = getOld(age, run)  #Paths to all samples
         to_remove_samples = list(map(lambda str: str.split('/')[-1], to_remove))  #List of the samples themselves
@@ -45,21 +45,25 @@ def main (age, directory, investigatorlist, sheetname='SampleSheet_exempel.csv')
             print("** ERROR: No " + sheetname + " @ " + run)
         # See who owes each sample in the run
         to_email = dirOwners(os.path.join(run, sheetname), to_remove_samples)
-        bug(to_email)
+        #bug(to_email)
 
         # Send an email to the owners
 
         #autoMail(run, to_remove_samples, address)
 
-def getOld (age, run):  #Check which folders are older than age
+def getOld (age, run):  #Check which folders are older than age, return name and age
     today = date.today()
-    old_dirs = []
+    #old_dirs = [] #Initial list based way
+    old_dirs = {}
     for name in os.listdir(run):
         full_name = os.path.join(run,name)
         if os.path.isdir(full_name):
             filedate = date.fromtimestamp(os.path.getmtime(full_name))
-            if (today - filedate).days > age:
-                old_dirs.append(full_name)
+            age_today = (today - filedate).days
+            if age_today > age:
+                old_dirs[name] = {'path': full_name, 'age': age_today}
+                #old_dirs.append(full_name) #Used for using lists
+    bug(old_dirs)
     return old_dirs
 
 def dirOwners (run, samples): #Who owns what sample
