@@ -31,10 +31,8 @@ def main (age, directory, investigatorlist, sheetname):
     with open(investigatorlist) as f:
         data = json.load(f)
 
-    #Get a list of all seq runs in directory
-    #sheetname = 'SampleSheet.csv'  #For testing purposes only, remove this
+    #Get a list of all runs
     runs = []
-
     for path in os.listdir(directory):  #This is a kinda ugly way to get all the dirs
         #bug(path)
         full_path = os.path.join(directory, path)
@@ -44,50 +42,43 @@ def main (age, directory, investigatorlist, sheetname):
             #runs.append(full_path)
 
     #Go over each sequencing run one by one
-    #owner_dict = {}
-
     for run in runs:
         #Full path of the run
         run_path = os.path.join(directory, run)
-        #bug(run)
+
         # What is the age of the run
-        owner_dict = runAge(age, run)
-        #bug(owner_dict.keys())
+        run_dict = runAge(run)
 
         #What samples are in each run
-        bug(run_path)
-        run_samples = runSamples(run_path)
-        bug(run_samples)
+        run_dict[run]['samples'] = runSamples(run_path)
+        bug(run_dict)
 
-        to_remove = getOld(age, run_path)  #Paths to all samples
-        to_remove_samples = list(map(lambda str: str.split('/')[-1], to_remove))  #List of the samples themselves
-        #bug(to_remove_samples)
+        #to_remove = getOld(age, run_path)  #Paths to all samples
+        #to_remove_samples = list(map(lambda str: str.split('/')[-1], to_remove))  #List of the samples themselves
+
         #E-mail the people who have old samples
         # First make sure the SampleSheet.csv file exists
-        if not os.path.exists(os.path.join(run_path, sheetname)):
-            print("** ERROR: No " + sheetname + " @ " + run)
-        else:
-            # See who owes each sample in the run
-            to_email = dirOwners(os.path.join(run_path, sheetname), to_remove_samples)
-            #bug(to_email)
+        # if not os.path.exists(os.path.join(run_path, sheetname)):
+        #     print("** ERROR: No " + sheetname + " @ " + run)
+        # else:
+        #     # See who owes each sample in the run
+        #     to_email = dirOwners(os.path.join(run_path, sheetname), to_remove_samples)
+        #     #bug(to_email)
 
     # Send an email to the owners
 
     #bug(data['investigators']['CO']['email'])
     #autoMail(run, to_remove_samples, address)
 
-def runAge (age, run):
+def runAge (run):
     today = datetime.datetime.now()
     run_dict = {}
 
     run_date = datetime.datetime.strptime(run.split('_')[0], '%y%m%d')
     run_age = (today - run_date).days
 
-    if run_age > age:
-        run_dict[run] = {}
-        run_dict[run]['age'] = run_age
-
-        #bug(run_dict)
+    run_dict[run] = {}
+    run_dict[run]['age'] = run_age
 
     return run_dict
 
@@ -103,24 +94,24 @@ def runSamples (run):
 
 
 
-def getOld (age, run):  #Check which folders are older than age, return name and age
-    today = datetime.date.today()
-    #old_dirs = [] #Initial, list based way
-    old_dirs = {}
-    for name in os.listdir(run):
-        #bug(name)
-        full_name = os.path.join(run, name)
-        if os.path.isdir(full_name):
-            filedate = datetime.date.fromtimestamp(os.path.getmtime(full_name))
-            #bug("hej:")
-            #bug(filedate)
-
-            age_today = (today - filedate).days
-            if age_today > age:
-                old_dirs[name] = {'path': full_name, 'age': age_today}
-                #old_dirs.append(full_name) #Used for using lists
-    #bug(old_dirs)
-    return old_dirs
+# def getOld (age, run):  #Check which folders are older than age, return name and age
+#     today = datetime.date.today()
+#     #old_dirs = [] #Initial, list based way
+#     old_dirs = {}
+#     for name in os.listdir(run):
+#         #bug(name)
+#         full_name = os.path.join(run, name)
+#         if os.path.isdir(full_name):
+#             filedate = datetime.date.fromtimestamp(os.path.getmtime(full_name))
+#             #bug("hej:")
+#             #bug(filedate)
+#
+#             age_today = (today - filedate).days
+#             if age_today > age:
+#                 old_dirs[name] = {'path': full_name, 'age': age_today}
+#                 #old_dirs.append(full_name) #Used for using lists
+#     #bug(old_dirs)
+#     return old_dirs
 
 def dirOwners (run, samples):  #Who owns what sample
     #bug(samples)
