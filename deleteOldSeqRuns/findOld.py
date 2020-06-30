@@ -31,6 +31,23 @@ def main (age, directory, investigatorlist, sheetname):
     with open(investigatorlist) as f:
         data = json.load(f)
 
+    #Create a dict containing info on all runs
+    dataOwners = buildList(directory, investigatorlist, sheetname)
+
+    # Compile a list of everything that is old
+    for pi in dataOwners:
+        bug('--- ' + pi + ' ---', 'pi')
+        # bug(dataOwners[pi], 'val')
+        for run in dataOwners[pi]:
+        # bug(run, 'r')
+            if dataOwners[pi][run]['age'] > age:
+                bug(run, 'old')
+
+    # Send an email to the owners
+
+def buildList (directory, investigatorlist, sheetname):
+
+
     #Get a list of all runs
     runs = []
 
@@ -65,8 +82,7 @@ def main (age, directory, investigatorlist, sheetname):
             # Replace samples with specific ones tied to owner
             topdict[key][run]['samples'] = owner_dict[key]
 
-    # Send an email to the owners
-
+    return topdict
 
 def runAge (run):
     today = datetime.datetime.now()
