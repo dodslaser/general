@@ -33,11 +33,9 @@ def main(age, directory, investigatorlist, sheetname):
 
     #Create a dict containing info on all runs
     data_owners = buildList(directory, sheetname)
-    #bug_d(data_owners)
 
     # Compile a list of everything that is old
-    #pi_old = sortOld(data_owners, age)
-    #bug(pi_old, 'pi')
+    pi_old = sortOld(data_owners, age)
 
     # Send an email to the owners
     # for pi in pi_old:
@@ -80,36 +78,29 @@ def buildList(directory, sheetname):
     #Make a dictionary where each run/sample is tied to an owner
     topdict = defaultdict(dict)
     for run in runs:
-        #bug(run, '--------')
         #Full path of the run
         run_path = os.path.join(directory, run)
 
         # What is the age of the run
         run_dict = runAge(run)
-        #bug_d(run_dict)
 
         #What samples are in each run
         run_dict[run]['samples'] = runSamples(run_path)
-        #bug_d(run_dict)
+
         #Who owns what sample
         samples = run_dict[run]['samples']
 
         # Who owns what sample
         sheetpath = os.path.join(run_path, sheetname)
         owner_dict = sampleOwners(sheetpath, samples)
-        #bug_d(owner_dict)
-        #bug_d(run_dict[run]['age'])
 
         #Build a dict containing all info combined
         for pi in owner_dict:
             topdict[pi][run] = {}
             topdict[pi][run]['age'] = run_dict[run]['age']
-            #bug_d(topdict)
-            # Replace samples with specific ones tied to owner
-            #bug(pi)
-            #bug(list(owner_dict[pi]))
+            # Add samples with specific ones tied to owner
             topdict[pi][run]['samples'] = list(owner_dict[pi])
-    #bug_d(topdict)
+
     return topdict
 
 def runAge(run):
