@@ -34,17 +34,22 @@ def main(age, directory, investigatorlist, sheetname):
     #Create a dict containing info on all runs
     data_owners = buildList(directory, sheetname)
     #bug(data_owners, 'do')
+    #print(json.dumps(data_owners, indent=2))
 
     # Compile a list of everything that is old
     pi_old = sortOld(data_owners, age)
     #bug(pi_old, 'pi')
 
     # Send an email to the owners
-    for pi in pi_old:
-        bug('---')
-        bug(pi, 'pi')
-        bug('month')
-        bug(pi_old[pi]['month'], 'm')
+    # for pi in pi_old:
+    #     bug('---')
+    #     bug(pi, 'pi')
+    #     bug('month')
+    #     bug(pi_old[pi]['month'], 'm')
+    #     bug('week')
+    #     bug(pi_old[pi]['week'], 'w')
+    #     bug('day')
+    #     bug(pi_old[pi]['day'], 'd')
 
 def sortOld(data_owners, age):
     pi_old_list = {}
@@ -89,6 +94,7 @@ def buildList(directory, sheetname):
         samples = run_dict[run]['samples']
         sheetpath = os.path.join(run_path, sheetname)
         owner_dict = sampleOwners(sheetpath, samples)
+        bug_d(owner_dict)
 
 
         #Build a dict containing all info combined
@@ -141,6 +147,9 @@ def sampleOwners(sheetpath, samples):
 def bug(str, mark='*'): #Mark more clearly what is a debug message
     print("** Debug (" + mark +"):", end=' ')
     print(str)
+
+def bug_d(dict):
+    print(json.dumps(dict, indent=2))
 
 if __name__ == '__main__':
     main()
