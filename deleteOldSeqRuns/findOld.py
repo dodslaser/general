@@ -45,7 +45,6 @@ def main (age, directory, investigatorlist, sheetname):
     #Go over each sequencing run one by one
     #Check how old they are, what samples are in it, and who owns the sample
     for run in runs:
-        #bug("----")
         #Full path of the run
         run_path = os.path.join(directory, run)
 
@@ -54,59 +53,27 @@ def main (age, directory, investigatorlist, sheetname):
 
         #What samples are in each run
         run_dict[run]['samples'] = runSamples(run_path)
-        #bug(run_dict, 'rd')
 
         #Who owns what sample
         samples = run_dict[run]['samples']
         sheetpath = os.path.join(run_path, sheetname)
         owner_dict = sampleOwners(sheetpath, samples)
-        #bug(owner_dict, 'od')
-        #bug(run_dict.values(), 'rv')
+
 
         #Build a dict containing all info combined
         for key in owner_dict:
-            #bug(key,'key')
             topdict[key][run] = run_dict[run]
-            #bug(run,'y')
-            #bug(str(run_dict.keys()),'x')
+            # Replace samples with specific ones tied to owner
             topdict[key][run]['samples'] = owner_dict[key]
-            # for runkey in topdict[key]:
-            #     bug(key,'key')
-            #     bug(runkey,'run')
-            #     bug(topdict[key][runkey]['age'],'ra')
-            #     bug(topdict[key][runkey]['samples'], 'samps')
+
 
     for key in topdict:
         bug('-------')
         bug(key,'key')
         bug(topdict[key], 'dict')
 
-      #  for pi in owner_dict.keys():
-            #bug(owner_dict[pi], 'K')
-
-            #if any(d['samples'] == pi for d in run_dict.keys()):
-                #bug('hej')
-            #any(d['name'] == 'Test' for d in label)
-            #if any(owner_dict[pi] in d.values for d in run_dict.values()):
-                #bug(owner_dict[pi], 'y')
-            #result = any('a' in d.values() for d in dic.values())
-
-        #to_remove = getOld(age, run_path)  #Paths to all samples
-        #to_remove_samples = list(map(lambda str: str.split('/')[-1], to_remove))  #List of the samples themselves
-
-        #E-mail the people who have old samples
-        # First make sure the SampleSheet.csv file exists
-        # if not os.path.exists(os.path.join(run_path, sheetname)):
-        #     print("** ERROR: No " + sheetname + " @ " + run)
-        # else:
-        #     # See who owes each sample in the run
-        #     to_email = sampleOwners(os.path.join(run_path, sheetname), to_remove_samples)
-        #     #bug(to_email)
-
     # Send an email to the owners
 
-    #bug(data['investigators']['CO']['email'])
-    #autoMail(run, to_remove_samples, address)
 
 def runAge (run):
     today = datetime.datetime.now()
