@@ -65,12 +65,6 @@ def main (age, directory, investigatorlist, sheetname):
             # Replace samples with specific ones tied to owner
             topdict[key][run]['samples'] = owner_dict[key]
 
-
-    for key in topdict:
-        bug('-------')
-        bug(key,'key')
-        bug(topdict[key], 'dict')
-
     # Send an email to the owners
 
 
