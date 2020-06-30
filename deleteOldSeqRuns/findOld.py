@@ -33,17 +33,16 @@ def main (age, directory, investigatorlist, sheetname):
 
     #Get a list of all runs
     runs = []
-    topdict = defaultdict(dict)
+
     for path in os.listdir(directory):  #This is a kinda ugly way to get all the dirs
-        #bug(path)
         full_path = os.path.join(directory, path)
         if os.path.isdir(full_path) and re.match("^[0-9]{6}_", path):  #Is dir and starts with 6 digits
-            #bug(full_path)
             runs.append(path)
-            #runs.append(full_path)
 
     #Go over each sequencing run one by one
     #Check how old they are, what samples are in it, and who owns the sample
+    #Make a dictionary where each run/sample is tied to an owner
+    topdict = defaultdict(dict)
     for run in runs:
         #Full path of the run
         run_path = os.path.join(directory, run)
