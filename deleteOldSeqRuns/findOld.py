@@ -26,28 +26,43 @@ import re
               help='Name of file with ownership info of samples. default: "SampleSheet.csv')
 @click.option('-i', '--investigatorlist', required=True,
               help='Path to json file with investigator e-mails')
-def main (age, directory, investigatorlist, sheetname):
+def main(age, directory, investigatorlist, sheetname):
     # First get a list of what e-mail belongs to what person
     with open(investigatorlist) as f:
         data = json.load(f)
 
     #Create a dict containing info on all runs
-    dataOwners = buildList(directory, investigatorlist, sheetname)
+    data_owners = buildList(directory, sheetname)
+    #bug(data_owners, 'do')
 
     # Compile a list of everything that is old
-    for pi in dataOwners:
-        bug('--- ' + pi + ' ---', 'pi')
-        # bug(dataOwners[pi], 'val')
-        for run in dataOwners[pi]:
-        # bug(run, 'r')
-            if dataOwners[pi][run]['age'] > age:
-                bug(run, 'old')
+    pi_old = sortOld(data_owners, age)
+    #bug(pi_old, 'pi')
 
     # Send an email to the owners
+    for pi in pi_old:
+        bug('---')
+        bug(pi, 'pi')
+        bug('month')
+        bug(pi_old[pi]['month'], 'm')
 
-def buildList (directory, investigatorlist, sheetname):
+def sortOld(data_owners, age):
+    pi_old_list = {}
+    for pi in data_owners:
+        old_list = defaultdict(dict)
+        for run in data_owners[pi]:
+            if data_owners[pi][run]['age'] > age+30:
+                old_list['day'][run] = data_owners[pi][run]['samples']
+            elif data_owners[pi][run]['age'] > age+20:
+                old_list['week'][run] = data_owners[pi][run]['samples']
+            elif data_owners[pi][run]['age'] > age:
+                old_list['month'][run] = data_owners[pi][run]['samples']
 
+        pi_old_list[pi] = old_list
 
+    return pi_old_list
+
+def buildList(directory, sheetname):
     #Get a list of all runs
     runs = []
 
@@ -84,7 +99,7 @@ def buildList (directory, investigatorlist, sheetname):
 
     return topdict
 
-def runAge (run):
+def runAge(run):
     today = datetime.datetime.now()
     run_dict = {}
 
@@ -96,7 +111,7 @@ def runAge (run):
 
     return run_dict
 
-def runSamples (run):
+def runSamples(run):
     samples = []
     for name in os.listdir(run):
         #bug(name)
@@ -105,7 +120,7 @@ def runSamples (run):
             samples.append(name)
     return samples
 
-def sampleOwners (sheetpath, samples):
+def sampleOwners(sheetpath, samples):
     with open(sheetpath, mode='r') as csv_file:
         csv_reader = csv.reader(csv_file)
         pairs = []
@@ -123,7 +138,7 @@ def sampleOwners (sheetpath, samples):
         #bug(owner_dict)
         return owner_dict
 
-def bug (str, mark='*'): #Mark more clearly what is a debug message
+def bug(str, mark='*'): #Mark more clearly what is a debug message
     print("** Debug (" + mark +"):", end=' ')
     print(str)
 
