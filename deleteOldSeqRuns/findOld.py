@@ -107,25 +107,6 @@ def sampleOwners (sheetpath, samples):
         #bug(owner_dict)
         return owner_dict
 
-# def getOld (age, run):  #Check which folders are older than age, return name and age
-#     today = datetime.date.today()
-#     #old_dirs = [] #Initial, list based way
-#     old_dirs = {}
-#     for name in os.listdir(run):
-#         #bug(name)
-#         full_name = os.path.join(run, name)
-#         if os.path.isdir(full_name):
-#             filedate = datetime.date.fromtimestamp(os.path.getmtime(full_name))
-#             #bug("hej:")
-#             #bug(filedate)
-#
-#             age_today = (today - filedate).days
-#             if age_today > age:
-#                 old_dirs[name] = {'path': full_name, 'age': age_today}
-#                 #old_dirs.append(full_name) #Used for using lists
-#     #bug(old_dirs)
-#     return old_dirs
-
 def bug (str, mark='*'): #Mark more clearly what is a debug message
     print("** Debug (" + mark +"):", end=' ')
     print(str)
