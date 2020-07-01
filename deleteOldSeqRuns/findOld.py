@@ -39,19 +39,8 @@ def main(age, directory, investigatorlist, sheetname):
     # Compile a list of everything that is old
     pi_old = sortOld(data_owners, age)
 
-    # # Send an email to the owners
-    # for pi in data['investigators'].keys():
-    #     name = data['investigators'][pi]['name']
-    #     email = data['investigators'][pi]['email']
-    #     print("Hello " + name + " @ " + email)
-    #     bug('---')
-    #     bug(pi, 'pi')
-    #     bug('month')
-    #     bug(pi_old[pi]['month'], 'm')
-    #     bug('week')
-    #     bug(pi_old[pi]['week'], 'w')
-    #     bug('day')
-    #     bug(pi_old[pi]['day'], 'd')
+    # Send an email to the owners
+
 
 def sortOld(data_owners, age):
     pi_old_list = {}
@@ -127,20 +116,15 @@ def sampleOwners(sheetpath):
         pairs = []
         # Read in each line and save info about sample and owner
         for row in dropwhile(isDataLine, csv_reader): # Skip until the line starts with [Data]
-            #bug(row, 'nr')
             next(csv_reader, None) #Skip table header
             for row in csv_reader:
-                #bug(row, 'no')
-            # if row and row[0] in samples:  # skip empty rows and rows without sample info
                 extract = [row[10].split('_')[0], row[0]]
-                #bug(extract)
                 pairs.append(extract)
 
       # Load values into a dictionary
         owner_dict = defaultdict(list)
         for key, value in pairs:
             owner_dict[key].append(value)
-        #bug(owner_dict)
         return owner_dict
 
 def isDataLine(line):
