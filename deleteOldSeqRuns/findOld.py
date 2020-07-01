@@ -30,7 +30,7 @@ from itertools import dropwhile
 def main(age, directory, investigatorlist, sheetname):
     # First get a list of what e-mail belongs to what person
     with open(investigatorlist) as f:
-        data = json.load(f)
+        mail_json = json.load(f)
         #bug(data)
 
     #Create a dict containing info on all runs
@@ -38,9 +38,41 @@ def main(age, directory, investigatorlist, sheetname):
 
     # Compile a list of everything that is old
     pi_old = sortOld(data_owners, age)
-
+    #bug_d(pi_old)
     # Send an email to the owners
+    for pi in pi_old.keys():
+        mail_address = mail_json['investigators'][pi]['email']
+        mail_subject = 'Automatisk borttagning av sekvensdata från /seqstore'
+        mail_body = mailTemplate(pi_old)
 
+        print(mail_address)
+        print(mail_subject)
+        print(mail_body)
+
+    # for pi in pi_old.keys():
+    #     name = data['investigators'][pi]['name']
+    #     email = data['investigators'][pi]['email']
+    #     #print("Hello " + name + " @ " + email)
+    #     # bug(pi_old[pi])
+    #     bug('---')
+    #     bug(pi, 'pi')
+    #     bug(pi_old[pi]['month'], 'm')
+    #     bug(pi_old[pi]['week'], 'w')
+    #     bug(pi_old[pi]['day'], 'd')
+
+def mailTemplate(data):
+        text = """\
+
+        Detta är ett automatiskt mail som skickas då ni står som ägare för rå-sekvensdata som snart kommer att tas bort från filservern permanent.
+
+        Dessa kommer automatiskt att tas bort om 10 dagar. Om ni inte har något behov av att spara dessa filer så behöver ni inte göra någonting. Om ni istället vill att vi spar dessa så kontakta oss så snart som möjligt.
+
+        De prover som berörs är från körningen med ID <run name> och har följande sample IDn:
+        <samples list>
+
+        Med vänliga automatiska hälsningar,
+        CGG Bioinformatik
+        """
 
 def sortOld(data_owners, age):
     pi_old_list = {}
