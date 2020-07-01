@@ -89,19 +89,9 @@ def buildList(directory, sheetname):
         # What is the age of the run
         run_dict = runAge(run)
 
-
-        #What samples are in each run
-        run_dict[run]['samples'] = runSamples(run_path)
-
-        #Who owns what sample
-        samples = run_dict[run]['samples']
-
         # Who owns what sample
         sheetpath = os.path.join(run_path, sheetname)
-        owner_dict = sampleOwners(sheetpath, samples)
-
-        bug(run_dict,'rd')
-        bug(owner_dict,'od')
+        owner_dict = sampleOwners(sheetpath)
 
         #Build a dict containing all info combined
         for pi in owner_dict:
@@ -131,7 +121,7 @@ def runSamples(run):
             samples.append(name)
     return samples
 
-def sampleOwners(sheetpath, samples):
+def sampleOwners(sheetpath):
     with open(sheetpath, mode='r') as csv_file:
         csv_reader = csv.reader(csv_file)
         pairs = []
