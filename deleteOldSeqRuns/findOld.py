@@ -15,6 +15,7 @@ import csv
 from collections import defaultdict
 import json
 import re
+from itertools import dropwhile
 
 # Get arguments from the commandline
 @click.command()
@@ -30,6 +31,7 @@ def main(age, directory, investigatorlist, sheetname):
     # First get a list of what e-mail belongs to what person
     with open(investigatorlist) as f:
         data = json.load(f)
+        #bug(data)
 
     #Create a dict containing info on all runs
     data_owners = buildList(directory, sheetname)
@@ -37,8 +39,11 @@ def main(age, directory, investigatorlist, sheetname):
     # Compile a list of everything that is old
     pi_old = sortOld(data_owners, age)
 
-    # Send an email to the owners
-    # for pi in pi_old:
+    # # Send an email to the owners
+    # for pi in data['investigators'].keys():
+    #     name = data['investigators'][pi]['name']
+    #     email = data['investigators'][pi]['email']
+    #     print("Hello " + name + " @ " + email)
     #     bug('---')
     #     bug(pi, 'pi')
     #     bug('month')
@@ -84,6 +89,7 @@ def buildList(directory, sheetname):
         # What is the age of the run
         run_dict = runAge(run)
 
+
         #What samples are in each run
         run_dict[run]['samples'] = runSamples(run_path)
 
@@ -93,6 +99,9 @@ def buildList(directory, sheetname):
         # Who owns what sample
         sheetpath = os.path.join(run_path, sheetname)
         owner_dict = sampleOwners(sheetpath, samples)
+
+        bug(run_dict,'rd')
+        bug(owner_dict,'od')
 
         #Build a dict containing all info combined
         for pi in owner_dict:
@@ -118,9 +127,7 @@ def runAge(run):
 def runSamples(run):
     samples = []
     for name in os.listdir(run):
-        #bug(name)
         if os.path.isdir(os.path.join(run, name)):
-            #bug(name)
             samples.append(name)
     return samples
 
@@ -129,8 +136,12 @@ def sampleOwners(sheetpath, samples):
         csv_reader = csv.reader(csv_file)
         pairs = []
         # Read in each line and save info about sample and owner
-        for row in csv_reader:
-            if row and row[0] in samples:  # skip empty rows and rows without sample info
+        for row in dropwhile(isDataLine, csv_reader): # Skip until the line starts with [Data]
+            #bug(row, 'nr')
+            next(csv_reader, None) #Skip table header
+            for row in csv_reader:
+                #bug(row, 'no')
+            # if row and row[0] in samples:  # skip empty rows and rows without sample info
                 extract = [row[10].split('_')[0], row[0]]
                 #bug(extract)
                 pairs.append(extract)
@@ -141,6 +152,12 @@ def sampleOwners(sheetpath, samples):
             owner_dict[key].append(value)
         #bug(owner_dict)
         return owner_dict
+
+def isDataLine(line):
+    if line and line[0] == '[Data]':
+        return False
+    else:
+        return True
 
 def bug(str, mark='*'): #Mark more clearly what is a debug message
     print("** Debug (" + mark +"):", end=' ')
