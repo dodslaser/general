@@ -19,7 +19,7 @@ numdata=4
 
 #An array with values to pull from randomly
 PILIST=( \
-    "BTB" \
+    "SL" \
     "ES" \
     "CGG" \
     "JW" \
@@ -51,11 +51,13 @@ while getopts ":n:s:t:d:" opt; do
     esac
 done
 
+#Make a Demultiplex dir
+mkdir Demultiplexdir
+
 for ((i=1;i<=num_folds;i++)); do
 	for day in 01 20 28; do
 		#Make a run folder
 		idnum=$(openssl rand -hex 5 | tr '[:lower:]' '[:upper:]')
-
 		newdir="200${start_month}${day}_A00687_005${j}_$idnum"
 		j=$(($j+1))
 		mkdir $newdir
@@ -63,11 +65,22 @@ for ((i=1;i<=num_folds;i++)); do
 			cat $template > ${newdir}/SampleSheet.csv
 		fi
 
-		#Generate a bunch of datafolders in each run
+		#Make a copy of the folder in a Demultiplex subdir
+		mkdir Demultiplexdir/$newdir
+
+		#Make some various folders in the run folder
+		for f in Config Data InterOp Logs Recipe Thumbnail_Images; do
+			mkdir ${newdir}/$f
+		done
+
+		#Make some files in the run folder
+		for f in CopyComplete.txt RTA3.cfg RunINfo.xml RunParameters.xml SequenceComplete.txt; do
+			touch ${newdir}/$f
+		done
+
+		#Generate a SampleSheet.csv file with samples
 		for ((x=1;x<=numdata;x++)); do 
 			ID=$(shuf -i 1000-9999 -n 1)
-
-			mkdir "${newdir}/DNA$ID"
 			#Get a random PI owner
 			PI=${PILIST[ $(( RANDOM % ${#PILIST[@]} )) ] }
 			#This line could be more dynamic
@@ -75,7 +88,7 @@ for ((i=1;i<=num_folds;i++)); do
 			echo $line >> ${newdir}/SampleSheet.csv
 		done
 
-	#Set the newly made folders mtime to correct value
+	#Set the newly made folders/files mtime to correct value
 		find $newdir -exec touch -t 200${start_month}011200 {} +		
 	done
 	start_month=$(($start_month+1))
