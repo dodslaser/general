@@ -6,7 +6,7 @@ from pathlib import Path
 import csv
 
 @click.command()
-@click.argument('files', nargs=-1, type=click.Path(exists=True))
+@click.argument('files', nargs=-1, required=True, type=click.Path(exists=True))
 @click.option('-o', '--outfile', required=True,
               help='Path to output xlsx file')
 @click.option('-s', '--sheetnames',
