@@ -6,8 +6,7 @@ from pathlib import Path
 import csv
 
 @click.command()
-@click.option('-i', '--infile', required=True,
-              help='Comma separated list of input files')
+@click.argument('files', nargs=-1, type=click.Path(exists=True))
 @click.option('-o', '--outfile', required=True,
               help='Path to output xlsx file')
 @click.option('-s', '--sheetnames',
@@ -19,20 +18,19 @@ import csv
               help='Convert strings to numbers using float()?, default:False')
 @click.option('--strings2form', is_flag=True,
               help='Convert strings to formulas?, default:False')
-def main(infile, outfile, sheetnames, strings2num, strings2form, delim):
+def main(files, outfile, sheetnames, strings2num, strings2form, delim):
     #Set parameters for the workbook
     params = get_params(strings2num, strings2form)
 
     #Name the sheets to be used
+    infile = list(files)
     sheets = []
     if sheetnames:
-        infile = infile.split(',')
         sheets = sheetnames.split(',')
         if len(sheets) != len(infile):
             print("** ERROR: Sheetname and filename lists are not of same length")
             exit(1)
     else:
-        infile = infile.split(',')
         for file in infile:
             sheets.append(Path(file).stem)
 
