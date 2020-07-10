@@ -28,7 +28,7 @@ def main(files, outfile, sheetnames, strings2num, strings2form, delim):
     if sheetnames:
         sheets = sheetnames.split(',')
         if len(sheets) != len(infile):
-            print("** ERROR: Sheetname and filename lists are not of same length")
+            print("Error: Sheetname and filename lists are not of same length")
             exit(1)
     else:
         for file in infile:
