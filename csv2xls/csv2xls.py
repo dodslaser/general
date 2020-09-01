@@ -12,13 +12,13 @@ import csv
 @click.option('-s', '--sheetnames',
               help='Comma separated list of names for worksheets, must be in same order as the files provided. '
                    'Default: Use filenames')
-@click.option('-d', '--delimiter', 'delim', default=',',
-              help='Delimiter to use, default:,')
+@click.option('--tsv', is_flag=True,
+              help='Input is a tab separated file')
 @click.option('--strings2num', is_flag=True,
               help='Convert strings to numbers using float()?, default:False')
 @click.option('--strings2form', is_flag=True,
               help='Convert strings to formulas?, default:False')
-def main(files, outfile, sheetnames, strings2num, strings2form, delim):
+def main(files, outfile, sheetnames, strings2num, strings2form, tsv):
     #Set parameters for the workbook
     params = get_params(strings2num, strings2form)
 
@@ -42,7 +42,10 @@ def main(files, outfile, sheetnames, strings2num, strings2form, delim):
         worksheet = workbook.add_worksheet(sheets[ws])
         #Write each file to new worksheet
         with open(file, 'r', encoding='utf8') as f:
-            reader = csv.reader(f, delimiter=delim)
+            if tsv:
+                reader = csv.reader(f, delimiter='\t')
+            else:
+                reader = csv.reader(f, delimiter=',')
             for r, row in enumerate(reader):
                 for c, col in enumerate(row):
                     worksheet.write(r, c, col)
