@@ -68,7 +68,7 @@ def main(animals, adjectives, used_names, starting_letter):
                         'Wanna use']
 
         print("")
-        question = questionList[random.randint(0,len(questionList)-1)] + " '" + combo + "'? [YES/no]: "
+        question = questionList[random.randint(0,len(questionList)-1)] + " '" + combo + "'? [yes/NO]: "
 
         #Ask for user inpiut
         answer = input(question)
