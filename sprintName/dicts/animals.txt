@@ -1,6 +1,5 @@
 Aardvark
 Aardwolf
-African
 Albatross
 Alligator
 Alpaca
@@ -9,19 +8,16 @@ Amphibian
 Anaconda
 Angelfish
 Anglerfish
-Animals
 Ant
 Anteater
 Antelope
 Antlion
 Ape
 Aphid
-Arabian
 Arctic
 Armadillo
 Arrow
 Asp
-Ass
 Baboon
 Badger
 Bald
@@ -42,7 +38,6 @@ Bird
 Bison
 Black
 Blackbird
-Blue
 Boa
 Boar
 Bobcat
@@ -51,7 +46,7 @@ Bonobo
 Booby
 Bovid
 Box
-Buffalo,
+Buffalo
 Bug
 Butterfly
 Buzzard
@@ -83,7 +78,6 @@ Clownfish
 Cobra
 Cockroach
 Cod
-Common
 Condor
 Constrictor
 Coral
@@ -104,7 +98,6 @@ Dingo
 Dinosaur
 Dog
 Dolphin
-Domestic
 Donkey
 Dormouse
 Dove
@@ -121,7 +114,6 @@ Egret
 Elephant
 Elk
 Emu
-English
 Ermine
 Falcon
 Fancy
@@ -137,14 +129,12 @@ Flyingfish
 Fowl
 Fox
 Frog
-Fruit
 Galliform
 Gamefowl
 Gayal
 Gazelle
 Gecko
 Gerbil
-Giant
 Gibbon
 Gila
 Giraffe
@@ -199,10 +189,8 @@ Koala
 Koi
 Komodo
 Krill
-Lab
 Ladybug
 Lamprey
-Land
 Landfowl
 Lark
 Leech
@@ -252,12 +240,10 @@ Mouse
 Mule
 Muskox
 Narwhal
-New
 Newt
 Nightingale
 Ocelot
 Octopus
-Old
 Opossum
 Orangutan
 Orca
@@ -311,7 +297,6 @@ Rat
 Rattlesnake
 Raven
 Ray
-Red
 Reindeer
 Reptile
 Rhinoceros
@@ -327,7 +312,6 @@ Sailfish
 Salamander
 Salmon
 Sawfish
-Scale
 Scallop
 Scorpion
 Sea
@@ -336,7 +320,6 @@ Shark
 Sheep
 Shrew
 Shrimp
-Siamese
 Silkworm
 Silverfish
 Skink
@@ -347,12 +330,10 @@ Smelt
 Snail
 Snake
 Snipe
-Snow
 Society
 Sockeye
 Sole
 Sparrow
-Sperm
 Spider
 Spoonbill
 Squid
@@ -402,7 +383,6 @@ Wallaby
 Walrus
 Warbler
 Wasp
-Water
 Weasel
 Whale
 Whippet
@@ -417,7 +397,6 @@ Wombat
 Woodpecker
 Worm
 Wren
-X-ray
 Xerinae
 Yak
 Yellow
