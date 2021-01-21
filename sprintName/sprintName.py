@@ -13,7 +13,7 @@ import sys
 @click.option('-u', '--used_names', required=True,
               help='Path to list of already used names')
 @click.option('-s', '--starting_letter',
-              help='Path to list of already used names')
+              help='Choose starting letter. Might not work with uncommon ones, such as X')
 def main(animals, adjectives, used_names, starting_letter):
     #Read in the already used names into a list
     with open(used_names) as f:
