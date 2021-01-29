@@ -52,7 +52,6 @@ def main(demultiplexdir, outdir):
     for sample in sample_list:
         QCs = allQC(demultiplexdir, sample)
         for QC in QCs:
-            print(QCs)
             destPath = os.path.join(outdir, os.path.basename(QC))
             if os.path.exists(destPath): #Skip if already there
                 next
