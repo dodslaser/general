@@ -34,7 +34,7 @@ def main(demultiplexdir, outdir):
     print("** LOG: Found the following samples belonging to PAT:")
     for sample in sample_list:
         print("\t" + sample)
-    print ("** LOG: Making symlinks...", end="")
+    print ("** LOG: Linking fastq files...", end="")
 
     #Make the symlinks for the samples
     for sample in sample_list:
@@ -45,7 +45,19 @@ def main(demultiplexdir, outdir):
                 next
             else:
                 os.symlink(fastq, destPath)
+    print("done.")
 
+    #Link the fastQC report
+    print ("** LOG: Linking fastqc reports...", end="")
+    for sample in sample_list:
+        QCs = allQC(demultiplexdir, sample)
+        for QC in QCs:
+            print(QCs)
+            destPath = os.path.join(outdir, os.path.basename(QC))
+            if os.path.exists(destPath): #Skip if already there
+                next
+            else:
+                os.symlink(QC, destPath)
     print("done.")
 
 def isDataLine(line):
@@ -58,6 +70,11 @@ def allFastqs(demultiplexdir, sample):
     fastqPath = demultiplexdir + "/fastq/" + sample + "*.fastq.gz"
     fastqList = glob.glob(fastqPath)
     return fastqList
+
+def allQC(demultiplexdir, sample):
+    fastqcPath = demultiplexdir + "/fastqc/" + sample + "*_fastqc.html"
+    QCList = glob.glob(fastqcPath)
+    return QCList
 
 
 if __name__ == '__main__':
