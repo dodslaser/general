@@ -1,0 +1,11 @@
+#!/bin/bash -l
+
+#$ -cwd
+#$ -S /bin/bash
+#$ -j y
+#$ -o /dev/null
+#$ -pe mpi 1
+#$ -q batch.q
+#$ -N "gzipping"
+
+gzip $1
