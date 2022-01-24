@@ -14,7 +14,7 @@ from sample_sheet import SampleSheet
 @click.option('-d', '--demultiplexdir', required=True,
               help='Path to demultiplex dir of run')
 @click.option('-o', '--outbox', default='/seqstore/remote/outbox/research_projects',
-              help='Path to outbox. Default: /seqstore/remote/outbox/research_projects')
+              help='Path to outbox', show_default=True)
 def main(demultiplexdir, outbox):
     # Set up the logfile and start logging
     logger = setup_logger('mv_resproj')
