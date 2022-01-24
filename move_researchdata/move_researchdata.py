@@ -1,11 +1,13 @@
 #!/usr/bin/env python
-import sys
-import re
-import click
-from sample_sheet import SampleSheet
-import os
-import logging
 
+import os
+import re
+import sys
+import glob
+import click
+import logging
+import subprocess
+from sample_sheet import SampleSheet
 
 @click.command()
 @click.option('-d', '--demultiplexdir', required=True,
@@ -27,6 +29,14 @@ def main(demultiplexdir, outbox):
     if not os.path.exists(samplesheet_path):
         logger.error(f'Could not SampleSheet.csv @ {demultiplexdir}')
         sys.exit()
+
+    # Check that user has write permissions in outbox
+    if os.access(outbox, os.W_OK):
+        logger.info(f"User has write permissions in {outbox}. Proceeding.")
+    else:
+        logger.error(f"No write permissions in {outbox}. Exiting.")
+        sys.exit()
+
 
     # Parse samplesheet and look for data belonging to research projects
     sheet = SampleSheet(samplesheet_path)
@@ -54,11 +64,57 @@ def main(demultiplexdir, outbox):
 
     # Check that there is an outbox folder for all projects
     for project in projects:
+        # Get name of run
+        run_name = os.path.basename(os.path.normpath(demultiplexdir))
         project_outbox = os.path.join(outbox, project, 'shared')
+
+        #Check that there is an outbox for the project
         if not os.path.exists(project_outbox):
             logger.error(f"Could not find outbox folder for {project}. Please create it. Exiting.")
             sys.exit()
 
+        # Make fastq folder if not existing
+        fastq_outbox = os.path.join(project_outbox, run_name, 'fastq')
+        if not os.path.exists(fastq_outbox):
+            os.mkdir(fastq_outbox)
+
+        # Transfer the fastq files
+        logger.info(f"Copying {len(projects[project])} samples to {project_outbox}. Skipping existing.")
+        # find all fastq files
+        for sample in projects[project]:
+            fastq_files = glob.glob(os.path.join(demultiplexdir,'fastq/') + sample + "*.fastq.gz")
+            #logger.info(f"Using rsync to transfer {len(fastq_files)} fastq files for {sample}.")
+
+            # Make the rsync command
+            rsync_cmd = ['rsync', '-P', '--ignore-existing']
+            rsync_cmd.extend(fastq_files)
+            rsync_cmd.append(fastq_outbox)
+
+            # Transfer via rsync
+            rsync_results = subprocess.run(rsync_cmd)
+            if not rsync_results:
+                logger.error(f"Problems copying fastq files for sample {sample} via rsync. Check the logs.")
+
+            # If there are fastqc results, move them as well
+            fastqc_files = glob.glob(os.path.join(demultiplexdir, 'fastqc/') + sample + "*_fastqc.zip")
+            if len(fastqc_files) > 0:
+                #Make fast-QC folder if not existing
+                fastqc_outbox = os.path.join(project_outbox, run_name, 'fastqc')
+                if not os.path.exists(fastqc_outbox):
+                    os.mkdir(fastqc_outbox)
+
+                #Transfer fastq zip file
+                # Make the rsync command
+                rsync_cmd = ['rsync', '-P', '--ignore-existing']
+                rsync_cmd.extend(fastqc_files)
+                rsync_cmd.append(fastqc_outbox)
+
+                # Transfer via rsync
+                rsync_results = subprocess.run(rsync_cmd)
+                if not rsync_results:
+                    logger.error(f"Problems copying fastQC files for sample {sample} via rsync. Check the logs.")
+
+    logger.info(f"All transfers complete.")
 
 def setup_logger(name):
     logger = logging.getLogger(name)
