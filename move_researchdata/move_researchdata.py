@@ -4,9 +4,10 @@ import os
 import re
 import sys
 import glob
-import click
 import logging
 import subprocess
+
+import click
 from sample_sheet import SampleSheet
 
 @click.command()
