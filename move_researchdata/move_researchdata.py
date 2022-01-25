@@ -62,7 +62,7 @@ def main(demultiplexdir, outbox):
         sys.exit()
 
     # Check that there is an outbox folder for all projects
-    for project in projects:
+    for project, samples in projects.items():
         # Get name of run
         run_name = os.path.basename(os.path.normpath(demultiplexdir))
         project_outbox = os.path.join(outbox, project, 'shared')
@@ -80,7 +80,7 @@ def main(demultiplexdir, outbox):
         # Transfer the fastq files
         logger.info(f"Copying {len(projects[project])} samples to {project_outbox}. Skipping existing.")
         # find all fastq files
-        for sample in projects[project]:
+        for sample in samples:
             fastq_files = glob.glob(os.path.join(demultiplexdir,'fastq/') + sample + "*.fastq.gz")
             #logger.info(f"Using rsync to transfer {len(fastq_files)} fastq files for {sample}.")
 
