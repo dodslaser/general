@@ -20,3 +20,30 @@ fi
 USERID=$1
 ROOTFOLDER=$2
 
+#Add new user
+useradd \
+  -d /home/chroot/$USERID \
+  -s /sbin/nologin \
+  -G sftponly $USERID \
+  && mkdir -p /home/chroot/${USERID}/shared
+
+#Make new project directory
+mkdir -p ${ROOTFOLDER}/${USERID}/shared
+
+#Mount bind the project folder to users home
+mount --bind \
+  ${ROOTFOLDER}/${USERID}/shared \
+  /home/chroot/${USERID}/shared
+
+#Make sure owner and permissions of chroot home is correct
+chown root:root /home/chroot/${USERID}
+chmod 755 /home/chroot/${USERID}
+
+#Generate a random password
+PASS_KEY=$(openssl rand -base64 9)
+
+#Set the password for new user
+echo $PASS_KEY | passwd $USERID --stdin
+
+#Echo the username and key so it can be copied
+echo -e "${USERID}\t${PASS_KEY}"
