@@ -43,7 +43,7 @@ chmod 755 /home/chroot/${USERID}
 PASS_KEY=$(openssl rand -base64 9)
 
 #Set the password for new user
-echo $PASS_KEY | passwd $USERID --stdin
+echo $PASS_KEY | passwd $USERID --stdin > /dev/null #Thrash STDOUT to make output clean
 
 #Echo the username and key so it can be copied
 echo -e "${USERID}\t${PASS_KEY}"
