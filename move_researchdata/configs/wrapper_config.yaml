@@ -3,5 +3,5 @@ instrument_demux_paths:
   novaseq_A01736: '/seqstore/instruments/novaseq_A01736/Demultiplexdir'
   nextseq_500175: '/seqstore/instruments/nextseq_500175_gc/Demultiplexdir'
 
-logfile: '/medstore/logs/cronlogs/move_researchdata'
+logpath: '/medstore/logs/cronlogs/move_researchdata'
 previous_runs_file_path: 'demuxdir_runlist.txt'

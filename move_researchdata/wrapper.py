@@ -1,11 +1,21 @@
 #!/usr/bin/env python
 
+import os
+import click
+import yaml
 from tools.helpers import setup_logger
 
-logger = setup_logger('wrapper', os.path.join(ROOT_LOGGING_PATH, 'wopr_wrapper.log'))
-
-def wrapper():
+@click.command()
+@click.option('--config-path', default='configs/wrapper_config.yaml',
+              help='Path to wrapper config file')
+def wrapper(config_path):
     ## Read in the config file
+    with open(config_path, 'r') as conf:
+        config = yaml.safe_load(conf)
+
+    ## Initialise logging
+    log_path = config['logpath']
+    logger = setup_logger('wrapper', os.path.join(log_path, 'wopr_wrapper.log'))
 
     ## Read in demuxdir-runlist.txt
 
