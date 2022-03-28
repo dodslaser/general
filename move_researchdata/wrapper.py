@@ -12,9 +12,9 @@ from tools.helpers import setup_logger, look_for_runs
               help='Path to wrapper config file')
 def wrapper(config_path):
     ## Sanity check. Only run as root
-    #if not os.geteuid() == 0:
-    #    print("ERROR: You need to run this wrapper as root!")
-    #    sys.exit()
+    if not os.geteuid() == 0:
+        print("ERROR: You need to run this wrapper as root!")
+        sys.exit()
 
     ## Read in the config file
     with open(config_path, 'r') as conf:
@@ -49,7 +49,7 @@ def wrapper(config_path):
 
     for run in runs_to_process:
         cmd_list = ['python','move_researchdata.py', '-d', run]
-        #subprocess.run(cmd_list)
+        subprocess.run(cmd_list)
 
     ## Add processed demultiplexdir to demuxdir-runlist.txt
     with open(runlist, 'a') as prev:
