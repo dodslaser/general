@@ -9,7 +9,7 @@ from collections import defaultdict
 
 import click
 from sample_sheet import SampleSheet
-from tools.helpers import setuo_logger
+from tools.helpers import setup_logger
 
 @click.command()
 @click.option('-d', '--demultiplexdir', required=True,
