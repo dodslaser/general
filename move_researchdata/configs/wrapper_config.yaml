@@ -1,5 +1,5 @@
 instrument_demux_paths:
-  novaseq_687: '/seqstore/instruments/novaseq_687_gc/Demultiplexdir/'
+  novaseq_687: '/seqstore/instruments/novaseq_687_gc/Demultiplexdir'
   novaseq_A01736: '/seqstore/instruments/novaseq_A01736/Demultiplexdir'
   nextseq_500175: '/seqstore/instruments/nextseq_500175_gc/Demultiplexdir'
 
