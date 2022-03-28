@@ -4,6 +4,7 @@ import os
 import sys
 import click
 import yaml
+import subprocess
 from tools.helpers import setup_logger, look_for_runs
 
 @click.command()
@@ -41,6 +42,14 @@ def wrapper(config_path):
                 runs_to_process.append(run)
 
     ## Move all research data
+    if len(runs_to_process) > 0:
+        logger.info(f"Found {len(runs_to_process)} run(s) to process")
+    else:
+        sys.exit()
+
+    for run in runs_to_process:
+        cmd_list = ['python','move_researchdata.py', '-d', run]
+        subprocess.run(cmd_list)
 
     ## Add processed demultiplexdir to demuxdir-runlist.txt
 
