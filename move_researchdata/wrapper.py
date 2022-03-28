@@ -49,9 +49,12 @@ def wrapper(config_path):
 
     for run in runs_to_process:
         cmd_list = ['python','move_researchdata.py', '-d', run]
-        subprocess.run(cmd_list)
+        #subprocess.run(cmd_list)
 
     ## Add processed demultiplexdir to demuxdir-runlist.txt
+    with open(runlist, 'a') as prev:
+        for run in runs_to_process:
+            prev.write(os.path.basename(run))
 
 if __name__ == '__main__':
     wrapper()
