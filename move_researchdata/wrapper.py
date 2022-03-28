@@ -1,8 +1,19 @@
 #!/usr/bin/env python
 
-import click
+from tools.helpers import setup_logger
 
-def look_for_runs(root_path):
-    found_paths = glob.glob(os.path.join(root_path, '*'))
-    regex = '^[0-9]{6}_A[0-9]{5}_[0-9]{4}_.{10}$'
-    return [path for path in found_paths if re.search(regex, os.path.basename(path))]
+logger = setup_logger('wrapper', os.path.join(ROOT_LOGGING_PATH, 'wopr_wrapper.log'))
+
+def wrapper():
+    ## Read in the config file
+
+    ## Read in demuxdir-runlist.txt
+
+    ## Find all non processed demultiplex dirs
+
+    ## Move all research data
+
+    ## Add demultiplexdir to demuxdir-runlist.txt
+
+if __name__ == '__main__':
+    wrapper()
