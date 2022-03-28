@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import sys
 import click
 import yaml
 from tools.helpers import setup_logger
@@ -9,6 +10,11 @@ from tools.helpers import setup_logger
 @click.option('--config-path', default='configs/wrapper_config.yaml',
               help='Path to wrapper config file')
 def wrapper(config_path):
+    ## Sanity check. Only run as root
+    #if not os.geteuid() == 0:
+    #    print("ERROR: You need to run this wrapper as root!")
+    #    sys.exit()
+
     ## Read in the config file
     with open(config_path, 'r') as conf:
         config = yaml.safe_load(conf)
