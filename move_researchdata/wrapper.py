@@ -4,7 +4,7 @@ import os
 import sys
 import click
 import yaml
-from tools.helpers import setup_logger
+from tools.helpers import setup_logger, look_for_runs
 
 @click.command()
 @click.option('--config-path', default='configs/wrapper_config.yaml',
@@ -29,10 +29,20 @@ def wrapper(config_path):
         previous_runs = [line.rstrip() for line in prev]
 
     ## Find all non processed demultiplex dirs
+    runs_to_process = []
+    for instrument in config['instrument_demux_paths'].keys():
+        demux_path = config['instrument_demux_paths'][instrument]
+        ## Get all demultiplexed runs
+        runs = look_for_runs(demux_path)
+        for run in runs:
+            if os.path.basename(run) in previous_runs:
+                continue # skip previously processed
+            else:
+                runs_to_process.append(run)
 
     ## Move all research data
 
-    ## Add demultiplexdir to demuxdir-runlist.txt
+    ## Add processed demultiplexdir to demuxdir-runlist.txt
 
 if __name__ == '__main__':
     wrapper()
