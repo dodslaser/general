@@ -4,12 +4,12 @@ import os
 import re
 import sys
 import glob
-import logging
 import subprocess
 from collections import defaultdict
 
 import click
 from sample_sheet import SampleSheet
+from tools.helpers import setuo_logger
 
 @click.command()
 @click.option('-d', '--demultiplexdir', required=True,
@@ -111,16 +111,7 @@ def main(demultiplexdir, outbox):
 
     logger.info(f"All transfers complete.")
 
-def setup_logger(name):
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
 
-    stream_handle = logging.StreamHandler()
-    stream_handle.setLevel(logging.DEBUG)
-    stream_handle.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-    logger.addHandler(stream_handle)
-
-    return logger
 
 if __name__ == '__main__':
     main()
