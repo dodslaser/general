@@ -9,10 +9,21 @@ to have root permissions set.
 The script uses the python libraries sample-sheet and click, and needs an environment with
 these two. A simple environment with only these exists called 'move_research'.
 
-### Usage
+### Usage, stand-alone
 ```
 $ sudo su
 $ module load miniconda/4.8.3
 $ source activate move_research
-$ python3 move_researchdata/move_researchdata.py -d /path/to/demultiplexdir/
+$ python3 move_researchdata/move_researchdata.py -d /path/to/demultiplexdir/of/run
+```
+
+There is also a wrapper script for finding new demultiplex dirs of sequencing runs,a nd moving any research data in it.
+This currently looks in the 2 novaseq folders as well as the nextseq folder.
+
+## Usage, wrapper
+```
+$ sudo su
+$ module load miniconda/4.8.3
+$ source activate move_research
+$ python3 move_researchdata/wrapper.py
 ```
