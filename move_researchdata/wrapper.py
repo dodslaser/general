@@ -18,6 +18,9 @@ def wrapper(config_path):
     logger = setup_logger('wrapper', os.path.join(log_path, 'wopr_wrapper.log'))
 
     ## Read in demuxdir-runlist.txt
+    runlist = config['previous_runs_file_path']
+    with open(runlist, 'r') as prev:
+        previous_runs = [line.rstrip() for line in prev]
 
     ## Find all non processed demultiplex dirs
 
