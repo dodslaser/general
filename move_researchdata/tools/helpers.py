@@ -4,6 +4,7 @@ import os
 import re
 
 def setup_logger(name, log_path=None):
+    """Initialise a log file using the logging package"""
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
 
@@ -21,6 +22,7 @@ def setup_logger(name, log_path=None):
     return logger
 
 def look_for_runs(root_path):
+    """Find all regular looking run folders at a given path"""
     found_paths = glob.glob(os.path.join(root_path, '*'))
     regex = '^[0-9]{6}_(?:NB|A)[0-9]*_[0-9]{4}_.{10}$' # NovaSeq & NextSeq
     return [path for path in found_paths if re.search(regex, os.path.basename(path))]
