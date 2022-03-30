@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
 import os
-import sys
 import click
 import yaml
-import subprocess
 from tools.helpers import setup_logger, look_for_runs
+from move_researchdata import move_data
 
 @click.command()
 @click.option('--config-path', default='configs/wrapper_config.yaml',
@@ -29,30 +28,29 @@ def wrapper(config_path):
     with open(runlist, 'r') as prev:
         previous_runs = [line.rstrip() for line in prev]
 
-    ## Find all non processed demultiplex dirs
-    runs_to_process = []
+    ## Find all non processed demultiplex dirs, process them
     for instrument, demux_path in config['instrument_demux_paths'].items():
         runs = look_for_runs(demux_path)
         for run in runs:
             if os.path.basename(run) in previous_runs:
                 continue # skip previously processed
-            else:
-                runs_to_process.append(run)
 
-    ## Move all research data
-    if len(runs_to_process) > 0:
-        logger.info(f"Found {len(runs_to_process)} run(s) to process")
-    else:
-        sys.exit()
+            logger.info(f"Processing run: {run}.")
 
-    for run in runs_to_process:
-        cmd_list = ['python','move_researchdata.py', '-d', run]
-        subprocess.run(cmd_list)
+            ## Process data
+            outfolder = config['outfolder']
+            error_runs = []
+            try:
+                move_data(run, outfolder, logger)
+                with open(runlist, 'a') as prev:  # Add processed run to runlist
+                    prev.write(os.path.basename(run))
+            except Exception as e:
+                error_runs.append(run)
 
-    ## Add processed demultiplexdir to demuxdir-runlist.txt
-    with open(runlist, 'a') as prev:
-        for run in runs_to_process:
-            prev.write(os.path.basename(run))
+            ## Send e-mail if problems with runs
+            if len(error_runs) > 0:
+                pass
+               # print(error_runs)
 
 if __name__ == '__main__':
     wrapper()
