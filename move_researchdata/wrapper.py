@@ -3,8 +3,11 @@
 import os
 import click
 import yaml
-from tools.helpers import setup_logger, look_for_runs
+from tools.helpers import setup_logger, look_for_runs, gen_email_body
 from move_researchdata import move_data
+import sys
+sys.path.append("..") # Adds higher directory to python modules path.
+from CGG.tools.emailer import send_email
 
 @click.command()
 @click.option('--config-path', default='configs/wrapper_config.yaml',
@@ -21,7 +24,8 @@ def wrapper(config_path):
 
     ## Initialise logging
     log_path = config['logpath']
-    logger = setup_logger('wrapper', os.path.join(log_path, 'move_research_data.log'))
+    full_log_path = os.path.join(log_path, 'move_research_data.log')
+    logger = setup_logger('wrapper', full_log_path)
 
     ## Read in demuxdir-runlist.txt
     runlist = config['previous_runs_file_path']
@@ -49,8 +53,12 @@ def wrapper(config_path):
 
             ## Send e-mail if problems with runs
             if len(error_runs) > 0:
-                pass
-               # print(error_runs)
+                recipient = config['email']['recipient']
+                sender = config['email']['sender']
+                subject = config['email']['subject']
+                body = gen_email_body(error_runs, full_log_path)
+
+                send_email(recipient, sender, subject, body)
 
 if __name__ == '__main__':
     wrapper()
