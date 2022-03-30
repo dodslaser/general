@@ -22,7 +22,7 @@ def wrapper(config_path):
 
     ## Initialise logging
     log_path = config['logpath']
-    logger = setup_logger('wrapper', os.path.join(log_path, 'wopr_wrapper.log'))
+    logger = setup_logger('wrapper', os.path.join(log_path, 'move_research_data.log'))
 
     ## Read in demuxdir-runlist.txt
     runlist = config['previous_runs_file_path']
