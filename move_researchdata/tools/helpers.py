@@ -27,3 +27,10 @@ def look_for_runs(root_path):
     regex = '^[0-9]{6}_(?:NB|A)[0-9]*_[0-9]{4}_.{10}$' # NovaSeq & NextSeq
     return [path for path in found_paths if re.search(regex, os.path.basename(path))]
 
+def gen_email_body(error_runs, log_path):
+    body = "While trying to move research data to their correct sFTP folder, " \
+           "the following runs gave errors:\n" + "\n".join(error_runs) +\
+            f"\n\nPlease see the complete log @ {log_path}.\n\n" \
+           f"Kind regards,\nClinical Genomics IT-group."
+
+    return body
