@@ -17,13 +17,15 @@ from tools.helpers import setup_logger
 @click.option('-o', '--outbox', default='/seqstore/remote/outbox/research_projects',
               help='Path to outbox', show_default=True)
 def main(demultiplexdir, outbox):
-    move_data(demultiplexdir, outbox)
-
-def move_data(demultiplexdir, outbox):
     # Set up the logfile and start logging
     logger = setup_logger('mv_resproj')
     logger.info(f'Looking for data belonging to research projects in {demultiplexdir}.')
 
+    num_transfers = move_data(demultiplexdir, outbox, logger)
+
+    logger.info(f"Completed {num_transfers} transfers.")
+
+def move_data(demultiplexdir, outbox, logger):
     # Look for path to SampleSheet
     samplesheet_path = os.path.join(demultiplexdir, 'SampleSheet.csv')
     if not os.path.exists(samplesheet_path):
@@ -78,6 +80,7 @@ def move_data(demultiplexdir, outbox):
         # Transfer the fastq files
         logger.info(f"Copying {len(projects[project])} samples to {project_outbox}. Skipping existing.")
         # find all fastq files
+        successful_transfers = 0
         for sample in samples:
             fastq_files = glob.glob(os.path.join(demultiplexdir,'fastq/') + sample + "*.fastq.gz")
             #logger.info(f"Using rsync to transfer {len(fastq_files)} fastq files for {sample}.")
@@ -106,9 +109,10 @@ def move_data(demultiplexdir, outbox):
                 rsync_results = subprocess.run(rsync_cmd)
                 if rsync_results.returncode != 0:
                     logger.error(f"Problems copying fastQC files for sample {sample} via rsync.")
+                else:
+                    successful_transfers += 1
 
-    logger.info(f"All transfers complete.")
-
+            return successful_transfers
 
 
 if __name__ == '__main__':
