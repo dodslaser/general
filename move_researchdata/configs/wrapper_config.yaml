@@ -7,3 +7,8 @@ logpath: '/medstore/logs/cronlogs/move_researchdata'
 previous_runs_file_path: 'demuxdir_runlist.txt'
 
 outfolder: '/seqstore/remote/outbox/research_projects'
+
+email:
+  recipient: 'anders.lind.cgg@gu.se'
+  sender: 'cgg-it@gu.se'
+  subject: 'ERROR: Move Research Wrapper'
