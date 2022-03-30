@@ -31,9 +31,7 @@ def wrapper(config_path):
 
     ## Find all non processed demultiplex dirs
     runs_to_process = []
-    for instrument in config['instrument_demux_paths'].keys():
-        demux_path = config['instrument_demux_paths'][instrument]
-        ## Get all demultiplexed runs
+    for instrument, demux_path in config['instrument_demux_paths'].items():
         runs = look_for_runs(demux_path)
         for run in runs:
             if os.path.basename(run) in previous_runs:
