@@ -17,6 +17,9 @@ from tools.helpers import setup_logger
 @click.option('-o', '--outbox', default='/seqstore/remote/outbox/research_projects',
               help='Path to outbox', show_default=True)
 def main(demultiplexdir, outbox):
+    move_data(demultiplexdir, outbox)
+
+def move_data(demultiplexdir, outbox):
     # Set up the logfile and start logging
     logger = setup_logger('mv_resproj')
     logger.info(f'Looking for data belonging to research projects in {demultiplexdir}.')
@@ -24,20 +27,20 @@ def main(demultiplexdir, outbox):
     # Check that the demultiplexdir exists
     if not os.path.exists(demultiplexdir):
         logger.error(f"The path {demultiplexdir} does not seem to exist.")
-        sys.exit()
+        sys.exit(1)
 
     # Look for path to SampleSheet
     samplesheet_path = os.path.join(demultiplexdir, 'SampleSheet.csv')
     if not os.path.exists(samplesheet_path):
         logger.error(f'Could not SampleSheet.csv @ {demultiplexdir}')
-        sys.exit()
+        sys.exit(1)
 
     # Check that user has write permissions in outbox
     if os.access(outbox, os.W_OK):
         logger.info(f"User has write permissions in {outbox}. Proceeding.")
     else:
         logger.error(f"No write permissions in {outbox}. Exiting.")
-        sys.exit()
+        sys.exit(1)
 
 
     # Parse samplesheet and look for data belonging to research projects
@@ -70,7 +73,7 @@ def main(demultiplexdir, outbox):
         #Check that there is an outbox for the project
         if not os.path.exists(project_outbox):
             logger.error(f"Could not find outbox folder for {project}. Please create it. Exiting.")
-            sys.exit()
+            sys.exit(1)
 
         # Make fastq folder if not existing
         fastq_outbox = os.path.join(project_outbox, run_name, 'fastq')
