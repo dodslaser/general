@@ -15,8 +15,7 @@ from CGG.tools.emailer import send_email
 def wrapper(config_path):
     ## Sanity check. Only run as root
     if not os.geteuid() == 0:
-        print("ERROR: You need to run this wrapper as root!")
-        sys.exit()
+        sys.exit("ERROR: You need to run this wrapper as root!")
 
     ## Read in the config file
     with open(config_path, 'r') as conf:
