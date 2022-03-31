@@ -109,10 +109,10 @@ def move_data(demultiplexdir, outbox, logger):
                 rsync_results = subprocess.run(rsync_cmd)
                 if rsync_results.returncode != 0:
                     logger.error(f"Problems copying fastQC files for sample {sample} via rsync.")
-                else:
-                    successful_transfers += 1
 
-            return successful_transfers
+            successful_transfers += 1
+
+    return successful_transfers
 
 
 if __name__ == '__main__':
