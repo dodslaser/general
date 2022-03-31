@@ -6,12 +6,12 @@ import yaml
 from tools.helpers import setup_logger, look_for_runs, gen_email_body
 from move_researchdata import move_data
 import sys
-sys.path.append("..") # Adds higher directory to python modules path.
+sys.path.append("..")
 from CGG.tools.emailer import send_email
 
 @click.command()
 @click.option('--config-path', default='configs/wrapper_config.yaml',
-              help='Path to wrapper config file')
+              type=click.Path(exists=True), help='Path to wrapper config file')
 def wrapper(config_path):
     ## Sanity check. Only run as root
     if not os.geteuid() == 0:
