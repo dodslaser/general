@@ -14,8 +14,8 @@ from CGG.tools.emailer import send_email
               type=click.Path(exists=True), help='Path to wrapper config file')
 def wrapper(config_path):
     ## Sanity check. Only run as root
-    if not os.geteuid() == 0:
-        sys.exit("ERROR: You need to run this wrapper as root!")
+    # if not os.geteuid() == 0:
+    #     sys.exit("ERROR: You need to run this wrapper as root!")
 
     ## Read in the config file
     with open(config_path, 'r') as conf:
@@ -32,6 +32,8 @@ def wrapper(config_path):
         previous_runs = [line.rstrip() for line in prev]
 
     ## Find all non processed demultiplex dirs, process them
+    outfolder = config['outfolder']
+    error_runs = []
     for instrument, demux_path in config['instrument_demux_paths'].items():
         runs = look_for_runs(demux_path)
         for run in runs:
@@ -41,23 +43,21 @@ def wrapper(config_path):
             logger.info(f"Processing run: {run}.")
 
             ## Process data
-            outfolder = config['outfolder']
-            error_runs = []
             try:
                 move_data(run, outfolder, logger)
                 with open(runlist, 'a') as prev:  # Add processed run to runlist
-                    prev.write(os.path.basename(run))
+                    prev.write(os.path.basename(run) + '\n')
             except Exception as e:
                 error_runs.append(run)
 
-            ## Send e-mail if problems with runs
-            if len(error_runs) > 0:
-                recipient = config['email']['recipient']
-                sender = config['email']['sender']
-                subject = config['email']['subject']
-                body = gen_email_body(error_runs, full_log_path)
+        ## Send e-mail if problems with runs
+        if len(error_runs) > 0:
+            recipient = config['email']['recipient']
+            sender = config['email']['sender']
+            subject = config['email']['subject']
+            body = gen_email_body(error_runs, full_log_path)
 
-                send_email(recipient, sender, subject, body)
+            send_email(recipient, sender, subject, body)
 
 if __name__ == '__main__':
     wrapper()
