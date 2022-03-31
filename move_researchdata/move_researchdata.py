@@ -59,7 +59,7 @@ def move_data(demultiplexdir, outbox, logger):
         logger.info(f"Found {num_samples} samples belonging to {len(projects)} research projects.")
     else:
         logger.info(f"Could not find any research samples in {demultiplexdir}. Exiting.")
-        sys.exit()
+        return
 
     # Check that there is an outbox folder for all projects
     for project, samples in projects.items():
