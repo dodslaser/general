@@ -92,6 +92,7 @@ def move_data(demultiplexdir, outbox, logger):
             rsync_results = subprocess.run(rsync_cmd)
             if rsync_results.returncode != 0:
                 logger.error(f"Problems copying fastq files for sample {sample} via rsync.")
+                raise ConnectionError
 
             # If there are fastqc results, move them as well
             fastqc_files = glob.glob(os.path.join(demultiplexdir, 'fastqc/') + sample + "*_fastqc.zip")
