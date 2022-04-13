@@ -16,28 +16,30 @@ from tools.helpers import setup_logger
               help='Path to demultiplex dir of run')
 @click.option('-o', '--outbox', default='/seqstore/remote/outbox/research_projects',
               help='Path to outbox', show_default=True)
-def main(demultiplexdir, outbox):
+@click.option('-q', '--include-fastqc', is_flag=True, default=False,
+              help='Include fastqc if exists?', show_default=True)
+def main(demultiplexdir, outbox, include_fastqc):
     # Set up the logfile and start logging
     logger = setup_logger('mv_resproj')
     logger.info(f'Looking for data belonging to research projects in {demultiplexdir}.')
 
-    num_transfers = move_data(demultiplexdir, outbox, logger)
+    num_transfers = move_data(demultiplexdir, outbox, logger, include_fastqc)
 
     logger.info(f"Completed {num_transfers} transfers.")
 
-def move_data(demultiplexdir, outbox, logger):
+def move_data(demultiplexdir, outbox, logger, include_fastqc):
     # Look for path to SampleSheet
     samplesheet_path = os.path.join(demultiplexdir, 'SampleSheet.csv')
     if not os.path.exists(samplesheet_path):
         logger.error(f'Could not SampleSheet.csv @ {demultiplexdir}')
-        raise FileNotFoundError
+        raise FileNotFoundError(f"No SampleSheet.csv @ {demultiplexdir}")
 
     # Check that user has write permissions in outbox
     if os.access(outbox, os.W_OK):
         logger.info(f"User has write permissions in {outbox}. Proceeding.")
     else:
         logger.error(f"No write permissions in {outbox}. Exiting.")
-        raise PermissionError
+        raise PermissionError(f"User has no write permission in {outbox}")
 
 
     # Parse samplesheet and look for data belonging to research projects
@@ -70,7 +72,7 @@ def move_data(demultiplexdir, outbox, logger):
         #Check that there is an outbox for the project
         if not os.path.exists(project_outbox):
             logger.error(f"Could not find outbox folder for {project}. Please create it. Exiting.")
-            raise FileNotFoundError
+            raise FileNotFoundError(f"No outbox folder for {project}")
 
         # Make fastq folder if not existing
         fastq_outbox = os.path.join(project_outbox, run_name, 'fastq')
@@ -95,21 +97,22 @@ def move_data(demultiplexdir, outbox, logger):
                 raise ConnectionError
 
             # If there are fastqc results, move them as well
-            fastqc_files = glob.glob(os.path.join(demultiplexdir, 'fastqc/') + sample + "*_fastqc.zip")
-            if len(fastqc_files) > 0:
-                #Make fast-QC folder if not existing
-                fastqc_outbox = os.path.join(project_outbox, run_name, 'fastqc')
-                if not os.path.exists(fastqc_outbox):
-                    os.makedirs(fastqc_outbox)
+            if include_fastqc:
+                fastqc_files = glob.glob(os.path.join(demultiplexdir, 'fastqc/') + sample + "*_fastqc.zip")
+                if len(fastqc_files) > 0:
+                    #Make fast-QC folder if not existing
+                    fastqc_outbox = os.path.join(project_outbox, run_name, 'fastqc')
+                    if not os.path.exists(fastqc_outbox):
+                        os.makedirs(fastqc_outbox)
 
-                #Transfer fastq zip file
-                # Make the rsync command
-                rsync_cmd = ['rsync', '-P', '--ignore-existing', *fastqc_files, fastq_outbox]
+                    #Transfer fastq zip file
+                    # Make the rsync command
+                    rsync_cmd = ['rsync', '-P', '--ignore-existing', *fastqc_files, fastq_outbox]
 
-                # Transfer via rsync
-                rsync_results = subprocess.run(rsync_cmd)
-                if rsync_results.returncode != 0:
-                    logger.warning(f"Problems copying fastQC files for sample {sample} via rsync.")
+                    # Transfer via rsync
+                    rsync_results = subprocess.run(rsync_cmd)
+                    if rsync_results.returncode != 0:
+                        logger.warning(f"Problems copying fastQC files for sample {sample} via rsync.")
 
             successful_transfers += 1
 
