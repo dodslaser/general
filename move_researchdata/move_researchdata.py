@@ -102,8 +102,7 @@ def move_data(demultiplexdir, outbox, logger, include_fastqc = False):
                 if len(fastqc_files) > 0:
                     #Make fast-QC folder if not existing
                     fastqc_outbox = os.path.join(project_outbox, run_name, 'fastqc')
-                    if not os.path.exists(fastqc_outbox):
-                        os.makedirs(fastqc_outbox)
+                    os.makedirs(fastqc_outbox, exists_ok = True)
 
                     #Transfer fastq zip file
                     # Make the rsync command
