@@ -27,11 +27,11 @@ def main(demultiplexdir, outbox, include_fastqc):
 
     logger.info(f"Completed {num_transfers} transfers.")
 
-def move_data(demultiplexdir, outbox, logger, include_fastqc):
+def move_data(demultiplexdir, outbox, logger, include_fastqc = False):
     # Look for path to SampleSheet
     samplesheet_path = os.path.join(demultiplexdir, 'SampleSheet.csv')
     if not os.path.exists(samplesheet_path):
-        logger.error(f'Could not SampleSheet.csv @ {demultiplexdir}')
+        logger.warning(f'No SampleSheet.csv @ {demultiplexdir}. Skipping run.')
         raise FileNotFoundError(f"No SampleSheet.csv @ {demultiplexdir}")
 
     # Check that user has write permissions in outbox
