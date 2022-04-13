@@ -16,8 +16,8 @@ wrapper_path = os.path.abspath(os.path.dirname(__file__))
               type=click.Path(exists=True), help='Path to wrapper config file')
 def wrapper(config_path):
     ## Sanity check. Only run as root
-     if not os.geteuid() == 0:
-     sys.exit("ERROR: You need to run this wrapper as root!")
+    if not os.geteuid() == 0:
+        sys.exit("ERROR: You need to run this wrapper as root!")
 
     ## Read in the config file
     with open(config_path, 'r') as conf:
@@ -52,14 +52,14 @@ def wrapper(config_path):
             except Exception as e:
                 error_runs.append(run)
 
-        ## Send e-mail if problems with runs
-        if len(error_runs) > 0:
-            recipient = config['email']['recipient']
-            sender = config['email']['sender']
-            subject = config['email']['subject']
-            body = gen_email_body(error_runs, full_log_path)
+    ## Send e-mail if problems with runs
+    if len(error_runs) > 0:
+        recipient = config['email']['recipient']
+        sender = config['email']['sender']
+        subject = config['email']['subject']
+        body = gen_email_body(error_runs, full_log_path)
 
-            send_email(recipient, sender, subject, body)
+        send_email(recipient, sender, subject, body)
 
 if __name__ == '__main__':
     wrapper()
