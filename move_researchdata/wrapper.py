@@ -8,6 +8,7 @@ from move_researchdata import move_data
 import sys
 sys.path.append("..")
 from CGG.tools.emailer import send_email
+from CGG.tools.pidlock import PidFile
 
 wrapper_path = os.path.abspath(os.path.dirname(__file__))
 
@@ -33,33 +34,40 @@ def wrapper(config_path):
     with open(runlist, 'r') as prev:
         previous_runs = [line.rstrip() for line in prev]
 
-    ## Find all non processed demultiplex dirs, process them
-    outfolder = config['outfolder']
-    error_runs = []
-    for instrument, demux_path in config['instrument_demux_paths'].items():
-        runs = look_for_runs(demux_path)
-        for run in runs:
-            if os.path.basename(run) in previous_runs:
-                continue # skip previously processed
+    ## Lock further calls to wrapper with PID lockfile to prevent multiple instances of script
+    try:
+        lockfilename = os.path.abspath(__file__)[:-3] + ".lock"
+        with PidFile(lockfilename):
+            ## Find all non processed demultiplex dirs, process them
+            outfolder = config['outfolder']
+            error_runs = []
+            for instrument, demux_path in config['instrument_demux_paths'].items():
+                runs = look_for_runs(demux_path)
+                for run in runs:
+                    if os.path.basename(run) in previous_runs:
+                        continue  # skip previously processed
 
-            logger.info(f"Processing run: {run}.")
+                    logger.info(f"Processing run: {run}.")
 
-            ## Process data
-            try:
-                move_data(run, outfolder, logger)
-                with open(runlist, 'a') as prev:  # Add processed run to runlist
-                    prev.write(os.path.basename(run) + '\n')
-            except Exception as e:
-                error_runs.append(run)
+                    ## Process data
+                    try:
+                        move_data(run, outfolder, logger)
+                        with open(runlist, 'a') as prev:  # Add processed run to runlist
+                            prev.write(os.path.basename(run) + '\n')
+                    except Exception as e:
+                        error_runs.append(run)
 
-    ## Send e-mail if problems with runs
-    if len(error_runs) > 0:
-        recipient = config['email']['recipient']
-        sender = config['email']['sender']
-        subject = config['email']['subject']
-        body = gen_email_body(error_runs, full_log_path)
+            ## Send e-mail if problems with runs
+            if len(error_runs) > 0:
+                recipient = config['email']['recipient']
+                sender = config['email']['sender']
+                subject = config['email']['subject']
+                body = gen_email_body(error_runs, full_log_path)
 
-        send_email(recipient, sender, subject, body)
+                send_email(recipient, sender, subject, body)
+
+    except SystemExit as e:
+        logger.error(f"{e}")
 
 if __name__ == '__main__':
     wrapper()
