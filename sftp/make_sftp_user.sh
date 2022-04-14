@@ -39,6 +39,12 @@ mount --bind \
 chown root:root /home/chroot/${USERID}
 chmod 755 /home/chroot/${USERID}
 
+# Set unix as group owner and make sur permissions for shared folder is 775
+chown root:unix /seqstore/remote/outbox/research_projects/${USERID}/shared
+chmod 775 /seqstore/remote/outbox/research_projects/${USERID}/shared
+chown root:unix /home/chroot/${USERID}/shared
+chmod 775 /home/chroot/${USERID}/shared
+
 #Generate a random password
 PASS_KEY=$(openssl rand -base64 9)
 
