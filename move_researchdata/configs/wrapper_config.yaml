@@ -8,7 +8,13 @@ previous_runs_file_path: 'demuxdir_runlist.txt'
 
 outfolder: '/seqstore/remote/outbox/research_projects'
 
-email:
+error-email:
   recipient: 'cgg-logs@gu.se'
   sender: 'cgg-it@gu.se'
   subject: 'ERROR: Move Research Wrapper'
+
+success-email:
+  recipient: 'su.kgg.ngs.forskning@vgregion.se'
+  sender: 'cgg-it@gu.se'
+  cc: 'cgg-logs@gu.se'
+  subject: 'Automatic research data transfer'
