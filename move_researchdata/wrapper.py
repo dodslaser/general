@@ -16,10 +16,6 @@ wrapper_path = os.path.abspath(os.path.dirname(__file__))
 @click.option('--config-path', default=os.path.join(wrapper_path, 'configs/wrapper_config.yaml'),
               type=click.Path(exists=True), help='Path to wrapper config file')
 def wrapper(config_path):
-    ## Sanity check. Only run as root
-    if not os.geteuid() == 0:
-        sys.exit("ERROR: You need to run this wrapper as root!")
-
     ## Read in the config file
     with open(config_path, 'r') as conf:
         config = yaml.safe_load(conf)
