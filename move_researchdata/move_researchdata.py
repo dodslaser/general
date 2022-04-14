@@ -23,23 +23,26 @@ def main(demultiplexdir, outbox, include_fastqc):
     logger = setup_logger('mv_resproj')
     logger.info(f'Looking for data belonging to research projects in {demultiplexdir}.')
 
-    num_transfers = move_data(demultiplexdir, outbox, logger, include_fastqc)
+    try:
+        transfers = move_data(demultiplexdir, outbox, logger, include_fastqc)
+    except StopIteration as e:
+        logger.warning(f'{e}')
+    except Exception as e:
+        logger.error(f'{e}')
 
-    logger.info(f"Completed {num_transfers} transfers.")
+    logger.info(f"Completed {sum(transfers.values())} transfers.")
 
 def move_data(demultiplexdir, outbox, logger, include_fastqc = False):
     # Look for path to SampleSheet
     samplesheet_path = os.path.join(demultiplexdir, 'SampleSheet.csv')
     if not os.path.exists(samplesheet_path):
-        logger.warning(f'No SampleSheet.csv @ {demultiplexdir}. Skipping run.')
-        raise FileNotFoundError(f"No SampleSheet.csv @ {demultiplexdir}")
+        raise StopIteration(f"No SampleSheet.csv @ {demultiplexdir}. Skipping run.")
 
     # Check that user has write permissions in outbox
     if os.access(outbox, os.W_OK):
         logger.info(f"User has write permissions in {outbox}. Proceeding.")
     else:
-        logger.error(f"No write permissions in {outbox}. Exiting.")
-        raise PermissionError(f"User has no write permission in {outbox}")
+        raise PermissionError(f"User {os.getlogin()} has no write permission in {outbox}")
 
 
     # Parse samplesheet and look for data belonging to research projects
@@ -64,6 +67,7 @@ def move_data(demultiplexdir, outbox, logger, include_fastqc = False):
         return
 
     # Check that there is an outbox folder for all projects
+    return_dict = {}
     for project, samples in projects.items():
         # Get name of run
         run_name = os.path.basename(os.path.normpath(demultiplexdir))
@@ -81,8 +85,9 @@ def move_data(demultiplexdir, outbox, logger, include_fastqc = False):
 
         # Transfer the fastq files
         logger.info(f"Copying {len(projects[project])} samples to {project_outbox}. Skipping existing.")
+        return_dict[project] = 0
+
         # find all fastq files
-        successful_transfers = 0
         for sample in samples:
             fastq_files = glob.glob(os.path.join(demultiplexdir,'fastq/') + sample + "*.fastq.gz")
             #logger.info(f"Using rsync to transfer {len(fastq_files)} fastq files for {sample}.")
@@ -113,9 +118,9 @@ def move_data(demultiplexdir, outbox, logger, include_fastqc = False):
                     if rsync_results.returncode != 0:
                         logger.warning(f"Problems copying fastQC files for sample {sample} via rsync.")
 
-            successful_transfers += 1
+            return_dict[project] += 1
 
-    return successful_transfers
+    return return_dict
 
 
 if __name__ == '__main__':

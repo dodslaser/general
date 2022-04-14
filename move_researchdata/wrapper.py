@@ -3,7 +3,7 @@
 import os
 import click
 import yaml
-from tools.helpers import setup_logger, look_for_runs, gen_email_body
+from tools.helpers import setup_logger, look_for_runs, gen_error_body, gen_success_body
 from move_researchdata import move_data
 import sys
 sys.path.append("..")
@@ -16,10 +16,6 @@ wrapper_path = os.path.abspath(os.path.dirname(__file__))
 @click.option('--config-path', default=os.path.join(wrapper_path, 'configs/wrapper_config.yaml'),
               type=click.Path(exists=True), help='Path to wrapper config file')
 def wrapper(config_path):
-    ## Sanity check. Only run as root
-    if not os.geteuid() == 0:
-        sys.exit("ERROR: You need to run this wrapper as root!")
-
     ## Read in the config file
     with open(config_path, 'r') as conf:
         config = yaml.safe_load(conf)
@@ -35,12 +31,14 @@ def wrapper(config_path):
         previous_runs = [line.rstrip() for line in prev]
 
     ## Lock further calls to wrapper with PID lockfile to prevent multiple instances of script
+    success_runs = {}
     try:
         lockfilename = os.path.abspath(__file__)[:-3] + ".lock"
         with PidFile(lockfilename):
             ## Find all non processed demultiplex dirs, process them
             outfolder = config['outfolder']
             error_runs = []
+
             for instrument, demux_path in config['instrument_demux_paths'].items():
                 runs = look_for_runs(demux_path)
                 for run in runs:
@@ -49,25 +47,40 @@ def wrapper(config_path):
 
                     logger.info(f"Processing run: {run}.")
 
-                    ## Process data
+                    ## Process data, capture number of moved samples
                     try:
-                        move_data(run, outfolder, logger)
+                        success_transfers = move_data(run, outfolder, logger)
+                        success_runs[run] = success_transfers
                         with open(runlist, 'a') as prev:  # Add processed run to runlist
                             prev.write(os.path.basename(run) + '\n')
+                    except StopIteration as e:
+                        logger.info(f"{e}")
                     except Exception as e:
+                        logger.error(f"{e}")
                         error_runs.append(run)
 
             ## Send e-mail if problems with runs
             if len(error_runs) > 0:
-                recipient = config['email']['recipient']
-                sender = config['email']['sender']
-                subject = config['email']['subject']
-                body = gen_email_body(error_runs, full_log_path)
+                recipient = config['error-email']['recipient']
+                sender = config['error-email']['sender']
+                subject = config['error-email']['subject']
+                body = gen_error_body(error_runs, full_log_path)
 
                 send_email(recipient, sender, subject, body)
 
     except SystemExit as e:
         logger.error(f"{e}")
+
+    #Send out success e-mail if any transfers were made
+    if success_runs:
+        recipient = config['success-email']['recipient']
+        sender = config['success-email']['sender']
+        subject = config['success-email']['subject']
+        cc = config['success-email']['cc']
+        body = gen_success_body(success_runs)
+
+        send_email(recipient, sender, subject, body, cc_recipients = cc)
+
 
 if __name__ == '__main__':
     wrapper()
