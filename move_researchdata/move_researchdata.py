@@ -68,7 +68,7 @@ def move_data(demultiplexdir, outbox, logger, include_fastqc = False):
 
         # Check that user has write permissions in project outbox
         if os.access(project_outbox, os.W_OK):
-            logger.info(f"User has write permissions in {project_outbox}. Proceeding.")
+            logger.info(f"User {os.getlogin()} has write permissions in {project_outbox}. Proceeding.")
         else:
             raise PermissionError(f"User {os.getlogin()} has no write permission in {project_outbox}")
 
