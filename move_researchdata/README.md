@@ -19,7 +19,7 @@ This currently looks in the 2 novaseq folders as well as the nextseq folder.
 If there were any samples transferred, an e-mail is sent to the lab with information that data has been moved (cc to cgg-logs).
 The recipients of both error and success e-mails can be configured in the wrapper_config.yaml file.
 
-The wrapper is executed via cronusers crontab on medair and is set to run once per day at 16:00.
+The wrapper is executed via cronusers crontab on medair.
 
 ## Usage, wrapper
 ```
