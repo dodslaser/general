@@ -38,13 +38,6 @@ def move_data(demultiplexdir, outbox, logger, include_fastqc = False):
     if not os.path.exists(samplesheet_path):
         raise StopIteration(f"No SampleSheet.csv @ {demultiplexdir}. Skipping run.")
 
-    # Check that user has write permissions in outbox
-    if os.access(outbox, os.W_OK):
-        logger.info(f"User has write permissions in {outbox}. Proceeding.")
-    else:
-        raise PermissionError(f"User {os.getlogin()} has no write permission in {outbox}")
-
-
     # Parse samplesheet and look for data belonging to research projects
     sheet = SampleSheet(samplesheet_path)
     projects = defaultdict(list)
@@ -72,6 +65,12 @@ def move_data(demultiplexdir, outbox, logger, include_fastqc = False):
         # Get name of run
         run_name = os.path.basename(os.path.normpath(demultiplexdir))
         project_outbox = os.path.join(outbox, project, 'shared')
+
+        # Check that user has write permissions in project outbox
+        if os.access(project_outbox, os.W_OK):
+            logger.info(f"User has write permissions in {project_outbox}. Proceeding.")
+        else:
+            raise PermissionError(f"User {os.getlogin()} has no write permission in {project_outbox}")
 
         #Check that there is an outbox for the project
         if not os.path.exists(project_outbox):
