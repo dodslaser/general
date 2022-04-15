@@ -69,7 +69,7 @@ def wrapper(config_path):
                 send_email(recipient, sender, subject, body)
 
     except SystemExit as e:
-        logger.error(f"{e}")
+        print({e})
 
     #Send out success e-mail if any transfers were made
     if success_runs:
